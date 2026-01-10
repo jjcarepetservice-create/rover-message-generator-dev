@@ -337,47 +337,107 @@ Thanks so much!`;
     updateUIByStep();
   </script>
 </body>
-  <script>
-  // Quick Reply Generator
+<script>
+  // Quick Reply Generator (smarter but still simple)
   function generateQuickReply() {
-    const clientMsg = document
-      .getElementById("clientMsg")
-      .value
-      .toLowerCase();
+    const inputEl = document.getElementById("clientMsg");
+    const outEl = document.getElementById("autoOut");
 
+    if (!inputEl || !outEl) return;
 
-    let reply = "";
+    const msg = (inputEl.value || "").toLowerCase().trim();
 
-    if (!clientMsg.trim()) {
-      reply = "Hi! Thanks for reaching out 😊 How can we help you today?";
-    } 
-    else if (clientMsg.includes("drop") || clientMsg.includes("pickup")) {
-      reply =
-        "Thanks for the details! Just to confirm, what time were you thinking for drop-off and pick-up?";
-    } 
-    else if (clientMsg.includes("food") || clientMsg.includes("feeding")) {
-      reply =
-        "Got it! Could you please let us know how many cups per meal your pet eats and how many times a day?";
-    } 
-    else if (clientMsg.includes("crate")) {
-      reply =
-        "If you have a crate your pet is comfortable with, you’re welcome to bring it along. If not, no worries at all—just let us know 😊";
-    } 
-      else if (
-  clientMsg.includes("meet") ||
-  clientMsg.includes("meet and greet") ||
-  clientMsg.includes("meet & greet")
-) {
-  reply =
-    "Yes, we do meet & greets 😊 We’re happy to schedule one before booking. Let us know a day and time that works best for you.";
-}
-      else {
-      reply =
-        "Thanks for the message! We’re happy to help. Let us know a bit more 😊";
+    if (!msg) {
+      outEl.value = "Hi! Thanks for reaching out 😊 How can we help you today?";
+      return;
     }
 
-    document.getElementById("autoOut").value = reply;
+    // Helper to check if message contains ANY keyword from a list
+    const hasAny = (keywords) => keywords.some((k) => msg.includes(k));
+
+    // Keyword → reply rules (add more anytime)
+    const rules = [
+      {
+        keys: ["meet and greet", "meet & greet", "meet", "greet"],
+        reply:
+          "Yes, we do meet & greets 😊 We can schedule one before booking. What day and time works best for you?",
+      },
+      {
+        keys: ["available", "availability", "free", "open"],
+        reply:
+          "Thanks for checking! Please share the dates you need and the drop-off/pick-up times, and I’ll confirm availability 😊",
+      },
+      {
+        keys: ["drop off", "drop-off", "drop", "pickup", "pick up", "pick-up"],
+        reply:
+          "Thanks for the details! Just to confirm, what time were you thinking for drop-off and pick-up? 😊",
+      },
+      {
+        keys: ["price", "pricing", "rate", "cost", "charge", "fee"],
+        reply:
+          "Our pricing is shown on Rover, but I’m happy to help clarify 😊 What dates and care type are you looking for (boarding/day care)?",
+      },
+      {
+        keys: ["food", "feeding", "eat", "meals"],
+        reply:
+          "Got it 😊 Could you share how many cups per meal and how many times a day?",
+      },
+      {
+        keys: ["med", "meds", "medicine", "pill", "tablet", "shot", "insulin"],
+        reply:
+          "Yes, we can handle medications 😊 Please share the name, dosage, and schedule, and any tips that help your pet take it easily.",
+      },
+      {
+        keys: ["crate", "kennel"],
+        reply:
+          "If your pet is crate-trained and you have one, you’re welcome to bring it. If not, no worries at all 😊",
+      },
+      {
+        keys: ["potty", "pee", "poop", "bathroom", "outside"],
+        reply:
+          "Thanks! What’s your pet’s usual potty routine (how often + any signals) so we can keep it consistent? 😊",
+      },
+      {
+        keys: ["other dogs", "dogs", "pets", "cat", "cats"],
+        reply:
+          "We do have other pets/dogs sometimes depending on the booking 😊 Does your pet do well around other dogs/pets?",
+      },
+      {
+        keys: ["updates", "photos", "pictures", "pic"],
+        reply:
+          "Of course 😊 We’ll send regular updates and photos during the stay.",
+      },
+      {
+        keys: ["aggressive", "bite", "biting", "reactive", "nervous", "anxiety"],
+        reply:
+          "Thanks for sharing that 😊 Are there any triggers we should avoid or any routines that help your pet feel comfortable?",
+      },
+      {
+        keys: ["cancel", "cancellation", "refund"],
+        reply:
+          "No problem—Rover handles cancellations/refunds based on the policy shown in the booking. If you tell me what changed, I’ll help guide you 😊",
+      },
+      {
+        keys: ["late", "running late", "delay", "delayed"],
+        reply:
+          "No worries 😊 Just let us know your updated ETA so we can plan accordingly.",
+      },
+      {
+        keys: ["address", "location", "where are you", "where do i drop"],
+        reply:
+          "Sure 😊 Once the booking is confirmed, Rover will show our exact address. We can also coordinate the best drop-off plan there.",
+      },
+    ];
+
+    // Find the first matching rule
+    const match = rules.find((r) => hasAny(r.keys));
+
+    outEl.value =
+      match?.reply ||
+      "Thanks for the message! 😊 Could you share the dates you need and a bit about your pet (age, breed, routine) so we can confirm?";
   }
+</script>
+
 </script>
 
 </html>
