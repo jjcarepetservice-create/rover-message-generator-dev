@@ -363,7 +363,15 @@ Thanks so much!`;
       reply =
         "If you have a crate your pet is comfortable with, you’re welcome to bring it along. If not, no worries at all—just let us know 😊";
     } 
-    else {
+      else if (
+  clientMsg.includes("meet") ||
+  clientMsg.includes("meet and greet") ||
+  clientMsg.includes("meet & greet")
+) {
+  reply =
+    "Yes, we do meet & greets 😊 We’re happy to schedule one before booking. Let us know a day and time that works best for you.";
+}
+      else {
       reply =
         "Thanks for the message! We’re happy to help. Let us know a bit more 😊";
     }
