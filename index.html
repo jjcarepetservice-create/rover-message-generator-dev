@@ -92,6 +92,30 @@
     <button id="clearBtn">Clear</button>
   </div>
 
+  <label>Message</label>
+<textarea id="out" placeholder="Your message will appear here..."></textarea>
+
+<div class="row">
+  <button id="copyBtn">Copy</button>
+  <button id="clearBtn">Clear</button>
+</div>
+
+<!-- 👇 ADD QUICK REPLY HELPER BELOW THIS LINE -->
+
+<hr />
+
+<h3>Quick Reply Helper</h3>
+
+<label>Paste client’s message from Rover</label>
+<textarea id="clientMsg" placeholder="Paste the client’s message here..."></textarea>
+
+<div class="row">
+  <button id="autoReplyBtn">Generate quick reply</button>
+</div>
+
+<label>Suggested reply</label>
+<textarea id="autoOut" placeholder="Suggested reply will appear here..."></textarea>
+
   <script>
     const els = {
       step: document.getElementById('step'),
