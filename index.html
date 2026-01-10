@@ -110,7 +110,7 @@
 <textarea id="clientMsg" placeholder="Paste the client’s message here..."></textarea>
 
 <div class="row">
-  <button id="autoReplyBtn">Generate quick reply</button>
+  <button id="autoReplyBtn" onclick="generateQuickReply()">Generate quick reply</button>
 </div>
 
 <label>Suggested reply</label>
@@ -344,4 +344,38 @@ Thanks so much!`;
     updateUIByStep();
   </script>
 </body>
+  <script>
+  // Quick Reply Generator
+  function generateQuickReply() {
+    const clientMsg = document
+      .getElementById("clientMessage")
+      .value
+      .toLowerCase();
+
+    let reply = "";
+
+    if (!clientMsg.trim()) {
+      reply = "Hi! Thanks for reaching out 😊 How can we help you today?";
+    } 
+    else if (clientMsg.includes("drop") || clientMsg.includes("pickup")) {
+      reply =
+        "Thanks for the details! Just to confirm, what time were you thinking for drop-off and pick-up?";
+    } 
+    else if (clientMsg.includes("food") || clientMsg.includes("feeding")) {
+      reply =
+        "Got it! Could you please let us know how many cups per meal your pet eats and how many times a day?";
+    } 
+    else if (clientMsg.includes("crate")) {
+      reply =
+        "If you have a crate your pet is comfortable with, you’re welcome to bring it along. If not, no worries at all—just let us know 😊";
+    } 
+    else {
+      reply =
+        "Thanks for the message! We’re happy to help. Let us know a bit more 😊";
+    }
+
+    document.getElementById("quickReplyOutput").value = reply;
+  }
+</script>
+
 </html>
