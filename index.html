@@ -117,6 +117,7 @@
       STEP_3_BOOKING_ACCEPTED: ['owner','pet','dates'],
       STEP_4_BOOKING_CONFIRMED: ['pet','dates','dropoff','pickup'],
       STEP_5_DAY_BEFORE: ['owner','pet','dropoff'],
+      STEP_5A_PRE_ARRIVAL_CHECKLIST: ['owner','pet'],
       STEP_6_ARRIVAL: ['owner','pet'],
       STEP_7_DAILY: ['owner','pet'],
       STEP_8_PICKUP_CONFIRM: ['owner','pet','pickup'],
@@ -203,6 +204,20 @@ Looking forward to caring for ${p.pet}!`;
           return `Hi ${p.owner}! Reminder for tomorrow’s drop-off at ${p.dropoff} 😊
 Please bring food, leash/harness, any medications (if any), and a crate if you have one.
 See you soon!`;
+          
+          case 'STEP_5A_PRE_ARRIVAL_CHECKLIST':
+  return `Hi ${p.owner}! 😊
+Just a quick checklist of items to please bring for ${p.pet} at drop-off:
+
+• Food (with feeding instructions)
+• Leash or harness
+• Food & water bowls
+• Crate (if you have one) – optional but helpful, especially if ${p.pet} is crate-trained or prefers their own space
+• Any medications (if applicable)
+• Bed or blanket (optional, but helps them feel more comfortable)
+
+If you don’t have a crate or bowls, no worries at all — just let us know ahead of time so we can plan accordingly.
+Let us know if you have any questions before drop-off. See you soon! 😊`;
 
         case 'STEP_6_ARRIVAL':
           return `Hi ${p.owner}! ${p.pet} is doing well and settling in nicely 😊
