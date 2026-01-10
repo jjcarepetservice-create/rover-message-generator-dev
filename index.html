@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rover Message Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 14px; max-width: 720px; margin: 0 auto; }
+    h2 { margin: 6px 0 12px; }
+    label { display:block; margin-top: 10px; font-size: 14px; }
+    select, input, textarea, button {
+      width: 100%; padding: 10px; margin-top: 6px;
+      font-size: 16px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 10px;
+    }
+    textarea { height: 210px; }
+    .row { margin-top: 12px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .status { margin-top: 10px; font-size: 14px; }
+    .status.ok { color: #1b5e20; }
+    .status.err { color: #b00020; }
+    .pill { display:inline-block; padding: 6px 10px; background:#f2f2f2; border-radius: 999px; font-size: 12px; margin-top: 8px; }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+    .muted { color: #666; font-size: 12px; margin-top: 6px; }
+  </style>
+</head>
+
+<body style="display:block;">
+  <h2>Rover Message Generator</h2>
+  <div class="pill" id="reqPill">Required fields will show here</div>
+
+  <label>Step</label>
+  <select id="step">
+    <option value="">-- Select --</option>
+    <option value="STEP_1_FIRST_RESPONSE">Step 1 – First response + availability</option>
+    <option value="STEP_2_CONFIRM_DETAILS">Step 2 – Confirm drop-off/pickup/feeding</option>
+    <option value="STEP_2A_MEET_AND_GREET">Step 2A – Meet & greet</option>
+    <option value="STEP_3_BOOKING_ACCEPTED">Step 3 – Booking accepted / next steps</option>
+    <option value="STEP_4_BOOKING_CONFIRMED">Step 4 – Booking confirmed message</option>
+    <option value="STEP_5_DAY_BEFORE">Step 5 – Day-before reminder</option>
+    <option value="STEP_6_ARRIVAL">Step 6 – Arrival update</option>
+    <option value="STEP_7_DAILY">Step 7 – Daily update</option>
+    <option value="STEP_8_PICKUP_CONFIRM">Step 8 – Pickup confirmation</option>
+    <option value="STEP_9_THANKYOU_REVIEW">Step 9 – Thank you + review</option>
+  </select>
+
+  <div class="grid2">
+    <div>
+      <label>Owner name</label>
+      <input id="owner" placeholder="e.g., Sarah" autocomplete="off" />
+    </div>
+    <div>
+      <label>Pet name</label>
+      <input id="pet" placeholder="e.g., Milo" autocomplete="off" />
+    </div>
+  </div>
+
+  <label>Dates</label>
+  <input id="dates" placeholder="e.g., Jan 12–15" autocomplete="off" />
+
+  <div class="grid2">
+    <div>
+      <label>Drop-off time</label>
+      <input id="dropoff" placeholder="e.g., 9:00 AM" autocomplete="off" />
+    </div>
+    <div>
+      <label>Pickup time</label>
+      <input id="pickup" placeholder="e.g., 6:00 PM" autocomplete="off" />
+    </div>
+  </div>
+
+  <label id="feedLabel">Feeding on day 1</label>
+  <select id="feed">
+    <option value="">-- Select feeding preference --</option>
+    <option value="Feed right away at drop-off">Feed right away at drop-off</option>
+    <option value="Wait until their usual feeding time">Wait until their usual feeding time</option>
+    <option value="Owner will message me when to feed">Owner will message me when to feed</option>
+  </select>
+  <div class="muted" id="feedNote">This will be required only for Step 2.</div>
+
+  <div class="row">
+    <button id="genBtn">Generate Message</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <label>Message</label>
+  <textarea id="out" placeholder="Your message will appear here..."></textarea>
+
+  <div class="row">
+    <button id="copyBtn">Copy</button>
+    <button id="clearBtn">Clear</button>
+  </div>
+
+  <script>
+    const els = {
+      step: document.getElementById('step'),
+      owner: document.getElementById('owner'),
+      pet: document.getElementById('pet'),
+      dates: document.getElementById('dates'),
+      dropoff: document.getElementById('dropoff'),
+      pickup: document.getElementById('pickup'),
+      feed: document.getElementById('feed'),
+      out: document.getElementById('out'),
+      status: document.getElementById('status'),
+      reqPill: document.getElementById('reqPill'),
+      genBtn: document.getElementById('genBtn'),
+      copyBtn: document.getElementById('copyBtn'),
+      clearBtn: document.getElementById('clearBtn'),
+      feedLabel: document.getElementById('feedLabel'),
+      feedNote: document.getElementById('feedNote'),
+    };
+
+    const requirements = {
+      STEP_1_FIRST_RESPONSE: ['owner','pet','dates'],
+      STEP_2_CONFIRM_DETAILS: ['owner','pet','dropoff','pickup','feed'],
+      STEP_2A_MEET_AND_GREET: ['owner','pet'],
+      STEP_3_BOOKING_ACCEPTED: ['owner','pet','dates'],
+      STEP_4_BOOKING_CONFIRMED: ['pet','dates','dropoff','pickup'],
+      STEP_5_DAY_BEFORE: ['owner','pet','dropoff'],
+      STEP_6_ARRIVAL: ['owner','pet'],
+      STEP_7_DAILY: ['owner','pet'],
+      STEP_8_PICKUP_CONFIRM: ['owner','pet','pickup'],
+      STEP_9_THANKYOU_REVIEW: ['pet'],
+    };
+
+    function setStatus(text, ok) {
+      els.status.textContent = text || '';
+      els.status.className = 'status ' + (ok ? 'ok' : 'err');
+    }
+
+    function getPayload() {
+      return {
+        step: els.step.value,
+        owner: els.owner.value.trim(),
+        pet: els.pet.value.trim(),
+        dates: els.dates.value.trim(),
+        dropoff: els.dropoff.value.trim(),
+        pickup: els.pickup.value.trim(),
+        feed: els.feed.value.trim(),
+      };
+    }
+
+    function missingFields(payload) {
+      const req = requirements[payload.step] || [];
+      return req.filter(key => !payload[key] || !String(payload[key]).trim());
+    }
+
+    function reqLabelList(step) {
+      const map = {
+        owner: 'Owner name',
+        pet: 'Pet name',
+        dates: 'Dates',
+        dropoff: 'Drop-off time',
+        pickup: 'Pickup time',
+        feed: 'Feeding on day 1'
+      };
+      const req = requirements[step] || [];
+      if (!req.length) return 'Select a step';
+      return 'Required: ' + req.map(k => map[k] || k).join(', ');
+    }
+
+    function updateUIByStep() {
+      const step = els.step.value;
+      els.reqPill.textContent = reqLabelList(step);
+
+      const showFeed = (step === 'STEP_2_CONFIRM_DETAILS');
+      els.feed.style.display = showFeed ? '' : 'none';
+      els.feedLabel.style.display = showFeed ? '' : 'none';
+      els.feedNote.style.display = showFeed ? '' : 'none';
+    }
+
+    function generateMessage(p) {
+      switch (p.step) {
+        case 'STEP_1_FIRST_RESPONSE':
+          return `Hi ${p.owner}! Thanks for reaching out 😊
+We’re available for ${p.dates} and would love to help with ${p.pet}. I’m reviewing the details now and will confirm shortly.`;
+
+        case 'STEP_2_CONFIRM_DETAILS':
+          return `Hi ${p.owner}! Thanks for the details 😊
+Just confirming:
+• Drop-off time: ${p.dropoff}
+• Pickup time: ${p.pickup}
+• Feeding on day 1: ${p.feed}
+
+Anything else we should know (meds, potty routine, crate, any triggers)?`;
+
+        case 'STEP_2A_MEET_AND_GREET':
+          return `Hi ${p.owner}! 😊
+We’d be happy to schedule a meet & greet before the booking.
+This helps ${p.pet} get familiar with us and gives us a chance to go over routines and care details.
+Let us know a day and time that works best for you.`;
+
+        case 'STEP_3_BOOKING_ACCEPTED':
+          return `Hi ${p.owner}! We can take ${p.pet} for ${p.dates} 😊
+Before we finalize, please confirm any feeding instructions, meds (if any), potty routine, and drop-off/pickup timing.`;
+
+        case 'STEP_4_BOOKING_CONFIRMED':
+          return `All set! We’re confirmed for ${p.dates} 😊
+Drop-off at ${p.dropoff} and pickup at ${p.pickup}.
+Looking forward to caring for ${p.pet}!`;
+
+        case 'STEP_5_DAY_BEFORE':
+          return `Hi ${p.owner}! Reminder for tomorrow’s drop-off at ${p.dropoff} 😊
+Please bring food, leash/harness, any medications (if any), and a crate if you have one.
+See you soon!`;
+
+        case 'STEP_6_ARRIVAL':
+          return `Hi ${p.owner}! ${p.pet} is doing well and settling in nicely 😊
+I’ll keep you posted.`;
+
+        case 'STEP_7_DAILY':
+          return `Hi ${p.owner}! Daily update on ${p.pet} 😊
+• Eating:
+• Potty:
+• Mood:
+• Walks/play:
+
+All good and relaxing comfortably.`;
+
+        case 'STEP_8_PICKUP_CONFIRM':
+          return `Hi ${p.owner}! Confirming pickup at ${p.pickup} 😊
+${p.pet} is doing great and will be ready.`;
+
+        case 'STEP_9_THANKYOU_REVIEW':
+          return `Thank you so much for trusting us with ${p.pet}! 😊
+We really enjoyed spending time with ${p.pet}.
+If you enjoyed our care, please leave us a 5-star rating and a quick comment about your experience — it really helps our small business grow.
+Rover also gives you the option to leave a tip after pickup, totally optional but always appreciated.
+Thanks so much!`;
+
+        default:
+          return '';
+      }
+    }
+
+    function saveDraft(p) {
+      try { localStorage.setItem('rover_msg_generator_v1', JSON.stringify(p)); } catch {}
+    }
+
+    function loadDraft() {
+      try {
+        const raw = localStorage.getItem('rover_msg_generator_v1');
+        if (!raw) return;
+        const p = JSON.parse(raw);
+        if (p.owner) els.owner.value = p.owner;
+        if (p.pet) els.pet.value = p.pet;
+        if (p.dates) els.dates.value = p.dates;
+        if (p.dropoff) els.dropoff.value = p.dropoff;
+        if (p.pickup) els.pickup.value = p.pickup;
+        if (p.feed) els.feed.value = p.feed;
+      } catch {}
+    }
+
+    els.genBtn.addEventListener('click', () => {
+      const p = getPayload();
+      const miss = missingFields(p);
+
+      if (!p.step) { setStatus('Choose a step first.', false); return; }
+      if (miss.length) { setStatus('Missing required: ' + miss.join(', '), false); return; }
+
+      els.out.value = generateMessage(p);
+      setStatus('Ready to copy.', true);
+      saveDraft(p);
+    });
+
+    els.copyBtn.addEventListener('click', async () => {
+      const text = els.out.value.trim();
+      if (!text) { setStatus('Generate a message first.', false); return; }
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus('Copied. Paste into Rover.', true);
+      } catch {
+        els.out.focus();
+        els.out.select();
+        setStatus('Copy manually (select text).', true);
+      }
+    });
+
+    els.clearBtn.addEventListener('click', () => {
+      els.step.value = '';
+      els.out.value = '';
+      setStatus('', true);
+      updateUIByStep();
+      try { localStorage.removeItem('rover_msg_generator_v1'); } catch {}
+    });
+
+    els.step.addEventListener('change', updateUIByStep);
+
+    // init
+    loadDraft();
+    updateUIByStep();
+  </script>
+</body>
+</html>
