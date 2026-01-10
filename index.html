@@ -36,6 +36,7 @@
     <option value="STEP_2A_MEET_AND_GREET">Step 2A – Meet & greet</option>
     <option value="STEP_3_BOOKING_ACCEPTED">Step 3 – Booking accepted / next steps</option>
     <option value="STEP_4_BOOKING_CONFIRMED">Step 4 – Booking confirmed message</option>
+    <option value="STEP_4A_INTAKE_QUESTIONS">Step 4A – Intake questions (after booking confirmed)</option>
     <option value="STEP_5_DAY_BEFORE">Step 5 – Day-before reminder</option>
     <option value="STEP_5A_PRE_ARRIVAL_CHECKLIST">Step 5A – Pre-Arrival checklist (what to bring)</option>
     <option value="STEP_6_ARRIVAL">Step 6 – Arrival update</option>
@@ -116,6 +117,7 @@
       STEP_2A_MEET_AND_GREET: ['owner','pet'],
       STEP_3_BOOKING_ACCEPTED: ['owner','pet','dates'],
       STEP_4_BOOKING_CONFIRMED: ['pet','dates','dropoff','pickup'],
+      STEP_4A_INTAKE_QUESTIONS: ['owner','pet'],
       STEP_5_DAY_BEFORE: ['owner','pet','dropoff'],
       STEP_5A_PRE_ARRIVAL_CHECKLIST: ['owner','pet'],
       STEP_6_ARRIVAL: ['owner','pet'],
@@ -199,6 +201,18 @@ Before we finalize, please confirm any feeding instructions, meds (if any), pott
           return `All set! We’re confirmed for ${p.dates} 😊
 Drop-off at ${p.dropoff} and pickup at ${p.pickup}.
 Looking forward to caring for ${p.pet}!`;
+
+          case 'STEP_4A_INTAKE_QUESTIONS':
+  return `Hi ${p.owner}! 😊
+Now that we’re all set for ${p.pet}’s stay, just a few quick questions so we can make things as comfortable and smooth as possible:
+
+• How much food does ${p.pet} get per meal (cups or scoops)?
+• Does ${p.pet} use a crate? If you have one, you’re welcome to bring it (optional).
+• Any chewing, separation anxiety, or triggers we should be aware of?
+• Any medications or allergies?
+• Is there a specific potty routine or signals you usually follow?
+
+Thanks so much! This really helps us be prepared and take the best care of ${p.pet} 💛`;
 
         case 'STEP_5_DAY_BEFORE':
           return `Hi ${p.owner}! Reminder for tomorrow’s drop-off at ${p.dropoff} 😊
